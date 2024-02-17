@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 import json
 
 
@@ -7,6 +7,8 @@ app = Flask(__name__)
 
 @app.route("/search")
 def search():
+    name = request.json
+    print(name)
     file = open("data.json", "r")
     parsed = json.load(file)
     # name = input("Enter Brand:")
