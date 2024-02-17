@@ -22,9 +22,9 @@ def search():
 
 @app.route("/getScores/<name>")
 def getScores(name):
-    for item in data:
-        if (name in item):
-            return str(item[name])
+
+    if (name in data):
+        return str(data[name])
         
     return f"Company '{name}' Not Found"
 
