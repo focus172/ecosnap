@@ -3,7 +3,7 @@ import json
 
 # Init
 app = Flask(__name__)
-with open("data.json", "r") as file:
+with open("data/main.json", "r") as file:
     data = json.load(file)
 
 
