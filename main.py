@@ -4,6 +4,9 @@ import json
 
 app = Flask(__name__)
 
+# loading the json file
+with open ("data.json", 'r') as file:
+    data = json.load(file)
 
 @app.route("/search")
 def search():
@@ -16,6 +19,14 @@ def search():
     file.close()
     return "<p>Hello, World!</p>"
 
+
+@app.route("/getScores/<name>")
+def getScores(name):
+    for item in data:
+        if (name in item):
+            return str(item[name])
+        
+    return f"Company '{name}' Not Found"
 
 def main():
     search()
