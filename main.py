@@ -2,6 +2,7 @@ from typing import Any, List
 from flask import Flask, Response, request, jsonify
 import json
 from google.cloud import vision
+from difflib import SequenceMatcher
 import base64
 
 version = "0.1.0"
@@ -36,7 +37,17 @@ def search() -> Response:
 
 
 def find(names: List[str]) -> Response:
-    name = names[0]
+
+    for guess in names:
+        for company in data["main"]:
+            accuracy_percentage = SequenceMatcher(None, guess.lower(), company.lower()).ratio()
+            # if the guess is close to the company name, or if the company name is a word in the guess (separated from other words by spaces)
+            # e.g. "Nike Shoes" should match "Nike" even though the actual strings aren't very close
+            # e.g. the mispelling "buhlenciaga" should match Balenciaga but NOT "GU," another company in the lsit
+            if (accuracy_percentage >= 0.75 or company.lower() in guess.lower().split()):
+                name = company
+                # print (f"{guess} matched {company} at {accuracy_percentage}")
+
     score = data["main"].get(name)
     if score is None:
         return error("Could not find anything with that name.")
