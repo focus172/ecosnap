@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Mapping
 from flask import Flask, Response, request, jsonify
 import json
 import os
@@ -59,15 +59,13 @@ def find(names: List[str]) -> Response:
     if matchs == []:
         return error("Could not find any info on companys:" + " ".join(names))
 
-    ok = []
+    ok: List[Mapping] = []
     for match in matchs:
         ok.append({"name": match, "scores": data[match]})
 
     return jsonify(
         {
-            "response": {
-                "ok": json.dumps(ok),
-            },
+            "response": {"ok": ok},
             "version": version,
         }
     )
