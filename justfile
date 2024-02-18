@@ -33,3 +33,6 @@ req path:
     --data @.tmp.file
 
   rm .tmp.file
+
+deploy:
+  gcloud run deploy --source .
