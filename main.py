@@ -1,6 +1,7 @@
 from typing import List
 from flask import Flask, Response, request, jsonify
 import json
+import os
 from google.cloud import vision
 from difflib import SequenceMatcher
 import base64
@@ -103,3 +104,7 @@ def get_logos(content: bytes) -> List[str] | Response:
     logos = response.logo_annotations
 
     return [logo.description for logo in logos if True]
+
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
