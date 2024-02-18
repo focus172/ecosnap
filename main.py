@@ -1,7 +1,8 @@
-from typing import AnyStr
+from typing import Any, List
 from flask import Flask, Response, request, jsonify
 import json
 from google.cloud import vision
+import base64
 
 version = "0.1.0"
 
@@ -13,8 +14,8 @@ client = vision.ImageAnnotatorClient()
 
 
 @app.route("/get/<name>")
-def get(name: AnyStr):
-    return find(name)
+def get(name: str):
+    return find([name])
 
 
 @app.route("/search", methods=["POST"])
@@ -23,14 +24,19 @@ def search() -> Response:
     if req is None:
         return error("Error missing request.")
 
-    name = req["name"]
-    if name is None:
-        return error("Error bad formated request.")
+    # Get the image data
+    image_data = req["image"]
+    content = base64.b64decode(image_data)
 
-    return find(name)
+    # Get the logos in the photo
+    names = get_logos(content)
+
+    # get the response from the names
+    return find(names)
 
 
-def find(name: AnyStr) -> Response:
+def find(names: List[str]) -> Response:
+    name = names[0]
     score = data["main"].get(name)
     if score is None:
         return error("Could not find anything with that name.")
@@ -46,7 +52,7 @@ def find(name: AnyStr) -> Response:
     )
 
 
-def error(desc: AnyStr) -> Response:
+def error(desc: str) -> Response:
     return jsonify(
         {
             "response": {"err": desc},
@@ -55,34 +61,21 @@ def error(desc: AnyStr) -> Response:
     )
 
 
-# def detect_labels(path: AnyStr):
-#     file = os.path.abspath(path)
-#
-#     # The name of the image file to annotate
-#
-#     # Loads the image into memory
-#     with io.open(file, "rb") as image:
-#         content = image.read()
-#     image = vision.Image(content=content)
-#
-#     # Performs label detection on the image file
-#     response = client.label_detection(image=image)
-#     labels = response.label_annotations
-#     print("Labels:")
-#     for label in labels:
-#         print(label.description)
+## Labels
+# image = vision.Image(content=content)
+# # Performs label detection on the image file
+# response = client.label_detection(image=image)
+# labels = response.label_annotations
+# print("Labels:")
+# for label in labels:
+#     print(label.description)
 
 
 ## Detects logos in the file.
-def detect_logos(content: bytes):
+def get_logos(content: bytes) -> List[str]:
     image = vision.Image(content=content)
 
     response = client.logo_detection(image=image)
-    logos = response.logo_annotations
-    print("Logos:")
-
-    for logo in logos:
-        print(logo.description)
 
     if response.error.message:
         raise Exception(
@@ -90,9 +83,6 @@ def detect_logos(content: bytes):
             "https://cloud.google.com/apis/design/errors".format(response.error.message)
         )
 
+    logos = response.logo_annotations
 
-with open("./nike-shoe.png", "rb") as image_file:
-    content = image_file.read()
-
-# detect_labels("./test.png")
-detect_logos(content)
+    return [logo.description for logo in logos if True]
