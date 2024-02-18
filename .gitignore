@@ -1,7 +1,3 @@
 __pycache__
 google-cloud-vision-key.json
 test
-
-/target
-src
-Cargo.*
