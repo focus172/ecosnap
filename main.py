@@ -40,6 +40,9 @@ def search() -> Response:
 
 
 def find(names: List[str]) -> Response:
+    if names == []:
+        return error("Could not find anything brands in that photo.")
+
     matchs = []
 
     for guess in names:
@@ -54,7 +57,7 @@ def find(names: List[str]) -> Response:
                 # print (f"{guess} matched {company} at {accuracy_percentage}")
 
     if matchs == []:
-        return error("Could not find anything with that name.")
+        return error("Could not find any info on companys:" + " ".join(names))
 
     ok = []
     for match in matchs:

@@ -48,18 +48,37 @@ export default function App() {
     }
   };
 
-  const sendImage = async (base64Image) => {
+  const seachName = async (name) => {
     try {
-      const response = await fetch('http://172.31.164.78:6699/get/Nike', {
+      const response = await fetch('http://172.31.164.78:6699/get/'+name, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
-        // body: { image: base64Image },
+      });
+
+      if (response.ok) {
+        const json = await response.json()
+        console.log(json);
+      } else {
+        console.error('Failed to send image');
+      }
+    } catch (error) {
+      console.error('Error sending image:', error);
+    }
+  };
+
+  const sendImage = async (base64Image) => {
+    try {
+      const response = await fetch('http://172.31.164.78:6699/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ image: base64Image }),
       });
 
       console.log(response);
-      
       if (response.ok) {
         console.log('Image sent successfully');
         const json = await response.json()
