@@ -48,7 +48,7 @@ circle{
     stroke-width: 20px;
     stroke-dasharray: 472;
     stroke-dashoffset: 472;
-    animation: anim 2s 1inear forwards;
+    animation: anim (2 * passedNumber / 100.0)s linear forwards;
 }
 svg{
     position:absolute;
@@ -58,6 +58,6 @@ svg{
 
 @keyframes anim{
     100%{
-        stroke-dashoffset: 165;
+        stroke-dashoffset: 472 * (1 - (passedNumber / 100.0));
     }
 }
