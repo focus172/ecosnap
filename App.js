@@ -14,6 +14,11 @@ import SearchBar from './SearchBar';
 export default function App() {
   const [data, setData] = useState(null);
   const [search, setSearch] = useState(null);
+  const [loading, setLoading] = useState(null);
+
+  if (loading != null) {
+    return <Text>Loading...</Text>
+  }
 
   if (data != null) {
     return <View style={styles.container}>
@@ -23,13 +28,13 @@ export default function App() {
 
   } else if (search != null) {
     return <View style={styles.container}>
-      <SearchBar search={search} setSearch={setSearch} setData={setData}></SearchBar>
+      <SearchBar search={search} setSearch={setSearch} setData={setData} setLoading={setLoading}></SearchBar>
       <Bar setData={setData} setSearch={setSearch}></Bar>
     </View>
 
   } else {
     return <View style={styles.container}>
-      <VeiwPort setData={setData}></VeiwPort>
+      <VeiwPort setData={setData} setLoading={setLoading}></VeiwPort>
       <Bar setData={setData} setSearch={setSearch}></Bar>
     </View>
   }

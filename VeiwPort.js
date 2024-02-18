@@ -8,7 +8,7 @@ import Button from './Button';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Bar from './Bar';
 
-export default function VeiwPort({ setData }) {
+export default function VeiwPort({ setData, setLoading}) {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [image, setImage] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
@@ -25,6 +25,7 @@ export default function VeiwPort({ setData }) {
 
   const takePicture = async () => {
     if (cameraRef) {
+      setLoading(loading => 'loading...')
       try {
         const data = await cameraRef.current.takePictureAsync();
         console.log(data);
@@ -59,11 +60,11 @@ export default function VeiwPort({ setData }) {
         body: JSON.stringify({ image: base64Image }),
       });
 
-      console.log(response);
       if (response.ok) {
         console.log('Image sent successfully');
         const json = await response.json()
         setData(data => json)
+        setLoading(loading => null)
         // console.log(json);
       } else {
         console.error('Failed to send image');
@@ -109,7 +110,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
-    width: "100%",
+    width: "130%",
     height: "100%",
   },
   camera: {

@@ -3,3 +3,11 @@ google-cloud-vision-key.json
 test
 /.expo
 /node_modules
+
+
+# Added by cargo
+
+/target
+Cargo.lock
+Cargo.toml
+src

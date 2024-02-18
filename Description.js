@@ -15,7 +15,7 @@ export default function Description({ score }) {
     } else if (score >= 11 && score <= 20) {
         text = `Brands with scores in the 11%-20% range generally publish numerous policies regarding employees and suppliers, along with some procedures and details on their supplier evaluation and correction practices. These brands typically do not provide supplier lists and offer limited, if any, information on key issues such as purchasing practices, equality in gender and race, sustainable sourcing, overconsumption, waste management, water and chemical use, and climate change and biodiversity.`;
     } else if (score >= 21 && score <= 30) {
-        text = `Brands with scores in the 21-30% range generally provide more detailed information regarding their policies, procedures, governance, as well as social and environmental goals. Brands may be releasing minimal information regarding their manufacturers, and do not include more details such as the number of workers, or any specific practices or standards adhered to by these factories. These brands will not be disclosing information on all Spotlight Issues but may touch upon a few.`;
+        text = `Brands with scores in the 21-30% range generally provide more detailed information regarding their policies, procedures, governance, as well as social and environmental goals. Brands may be releasing minimal information regarding their manufacturers, and do not include more details such as the number of workers, or any specific practices or standards adhered to by these factories. These brands will not be disclosing information on all Spotlight issues.`;
     } else if (score >= 31 && score <= 40) {
         text = `Brands with scores in the 31-40% range generally disclose their first manufacturers and detailed information on their policies, procedures, social and environmental objectives, governance, and supplier evaluation and correction methods. Brands more likely to disclose some information regarding issues such as carbon emissions, gender equality, sustainable sourcing and materials, and energy use.`;
     } else if (score >= 41 && score <= 50) {
@@ -32,5 +32,9 @@ export default function Description({ score }) {
         text = 'Invalid score.';
     }
 
-    return <Text>{text}</Text>;
+    return <View>
+        <Text>What Does That Mean?</Text>
+        <Text>{text}</Text>
+    </View>;
+
 }
