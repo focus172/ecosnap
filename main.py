@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import List
 from flask import Flask, Response, request, jsonify
 import json
 from google.cloud import vision
@@ -15,7 +15,7 @@ client = vision.ImageAnnotatorClient()
 
 
 @app.route("/get/<name>")
-def get(name: str):
+def get(name: str) -> Response:
     return find([name])
 
 
@@ -31,32 +31,38 @@ def search() -> Response:
 
     # Get the logos in the photo
     names = get_logos(content)
+    if names is Response:
+        return names
 
     # get the response from the names
     return find(names)
 
 
 def find(names: List[str]) -> Response:
+    matchs = []
 
     for guess in names:
-        for company in data["main"]:
-            accuracy_percentage = SequenceMatcher(None, guess.lower(), company.lower()).ratio()
+        for company in data:
+            accuracy = SequenceMatcher(None, guess.lower(), company.lower()).ratio()
+
             # if the guess is close to the company name, or if the company name is a word in the guess (separated from other words by spaces)
             # e.g. "Nike Shoes" should match "Nike" even though the actual strings aren't very close
             # e.g. the mispelling "buhlenciaga" should match Balenciaga but NOT "GU," another company in the lsit
-            if (accuracy_percentage >= 0.75 or company.lower() in guess.lower().split()):
-                name = company
+            if accuracy >= 0.75 or company.lower() in guess.lower().split():
+                matchs.append(company)
                 # print (f"{guess} matched {company} at {accuracy_percentage}")
 
-    score = data["main"].get(name)
-    if score is None:
+    if matchs == []:
         return error("Could not find anything with that name.")
+
+    ok = []
+    for match in matchs:
+        ok.append({"name": match, "scores": data[match]})
 
     return jsonify(
         {
             "response": {
-                "ok": score,
-                "brand": name,
+                "ok": ok,
             },
             "version": version,
         }
@@ -83,13 +89,13 @@ def error(desc: str) -> Response:
 
 
 ## Detects logos in the file.
-def get_logos(content: bytes) -> List[str]:
+def get_logos(content: bytes) -> List[str] | Response:
     image = vision.Image(content=content)
 
     response = client.logo_detection(image=image)
 
     if response.error.message:
-        raise Exception(
+        return error(
             "{}\nFor more info on error messages, check: "
             "https://cloud.google.com/apis/design/errors".format(response.error.message)
         )
