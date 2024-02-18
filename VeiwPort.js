@@ -124,7 +124,7 @@ export default function VeiwPort({ setData }) {
         <View
           style={{
             width: '100%',
-            height: 50,
+            height: 200,
             justifyContent: 'center',
             position: 'absolute',
             bottom: 0,
@@ -133,17 +133,10 @@ export default function VeiwPort({ setData }) {
           <Button
             icon='circle'
             onPress={search}
-            style={{
-              width: '100%',
-              height: '100%',
-              size: 50,
-            }}
+            size={100}
           ></Button>
         </View>
       </Camera>
-      <View>
-        <Bar></Bar>
-      </View>
     </View>
   );
 }
@@ -153,11 +146,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
-    paddingBottom: 50,
+    width: "100%",
+    height: "100%",
   },
   camera: {
     flex: 1,
-    width: 500,
+    // width: 400,
     borderRadius: 20,
+    width: "100%",
+    height: "38%",
   },
 });

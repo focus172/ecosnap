@@ -9,7 +9,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import Bar from './Bar';
 import Description from './Description';
 
-export default function Explain({ data, setData }) {
+export default function Explain({ data }) {
     const resp = data["response"]
 
     // console.log(resp)
@@ -19,7 +19,6 @@ export default function Explain({ data, setData }) {
             <View style={styles.container}>
                 <View>
                     <Text style={styles.camera}>Error has occcered: {err}</Text>
-                    <Bar setData={setData}></Bar>
                 </View>
             </View>
         );
@@ -36,21 +35,19 @@ export default function Explain({ data, setData }) {
 
     return (
         <View style={styles.container}>
-            <View>
-                <Text style={styles.camera}>Comapany IS {name}</Text>
-                <Description score={score}></Description>
-                <Bar setData={setData}></Bar>
-            </View>
+            {/*<Text style={styles.camera}>Comapany IS {name}</Text>*/}
+            <Description score={score}></Description>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        // flex: 1,
+        flex: 1,
         backgroundColor: '#fff',
         alignItems: 'center',
-        paddingBottom: 50,
+        width: "100%",
+        height: "100%",
     },
     camera: {
         flex: 1,

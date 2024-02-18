@@ -9,17 +9,40 @@ import VeiwPort from './VeiwPort';
 import Explain from './Explain';
 import Bar from './Bar';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import SearchBar from './SearchBar';
 
 export default function App() {
-
   const [data, setData] = useState(null);
   const [search, setSearch] = useState(null);
 
-  if (data == null) {
-    return <VeiwPort setData={setData}></VeiwPort>
+  if (data != null) {
+    return <View style={styles.container}>
+      <Explain data={data}></Explain>
+      <Bar setData={setData} setSearch={setSearch}></Bar>
+    </View>
+
   } else if (search != null) {
-    return <Text>Test</Text>
+    return <View style={styles.container}>
+      <SearchBar></SearchBar>
+      <Bar setData={setData} setSearch={setSearch}></Bar>
+    </View>
+
   } else {
-    return <Explain data={data} setData={setData}></Explain>
+    return <View style={styles.container}>
+      <VeiwPort setData={setData}></VeiwPort>
+      <Bar setData={setData} setSearch={setSearch}></Bar>
+    </View>
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    paddingBottom: 10,
+    paddingTop: 50,
+    height: "90%",
+    width: "100%"
+  },
+});

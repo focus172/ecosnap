@@ -7,17 +7,18 @@ import * as FileSystem from 'expo-file-system';
 import Button from './Button';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-export default function Bar({ setData }) {
+export default function Bar({ setData, setSearch }) {
     const goHome = async () => {
         // set the camera data to nothin to return home
         setData(data => null)
+        setSearch(search => null)
     };
     const goSearch = async () => {
-
+        setSearch(search => "")
+        setData(data => null)
     };
 
-    return <View>
-        <View
+    return <View
             style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
@@ -50,8 +51,7 @@ export default function Bar({ setData }) {
                     marginLeft: 50,
                 }}
             ></Icon.Button>
-        </View>
-    </View>;
+        </View>;
 }
 
 const styles = StyleSheet.create({
