@@ -63,7 +63,7 @@ def find(names: List[str]) -> Response:
     return jsonify(
         {
             "response": {
-                "ok": ok,
+                "ok": json.dumps(ok),
             },
             "version": version,
         }

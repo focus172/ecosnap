@@ -50,19 +50,20 @@ export default function App() {
 
   const sendImage = async (base64Image) => {
     try {
-      const response = await fetch('http://172.31.164.78:6699/search', {
-        method: 'POST',
+      const response = await fetch('http://172.31.164.78:6699/get/Nike', {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: { image: base64Image },
+        // body: { image: base64Image },
       });
 
       console.log(response);
       
       if (response.ok) {
         console.log('Image sent successfully');
-        console.log(response.body);
+        const json = await response.json()
+        console.log(json);
       } else {
         console.error('Failed to send image');
       }
