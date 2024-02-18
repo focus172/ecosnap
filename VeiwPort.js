@@ -15,7 +15,6 @@ export default function VeiwPort({ setData }) {
   const [flash, setFlash] = useState(Camera.Constants.FlashMode.off);
   const cameraRef = useRef(null);
 
-
   useEffect(() => {
     (async () => {
       MediaLibrary.requestPermissionsAsync();
@@ -50,31 +49,6 @@ export default function VeiwPort({ setData }) {
     }
   };
 
-  const search = async () => {
-    await seachName("Nike")
-  };
-
-  const seachName = async (name) => {
-    try {
-      const response = await fetch('http://172.31.164.78:6699/get/' + name, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const json = await response.json()
-        setData(data => json)
-        // console.log(json);
-      } else {
-        console.error('Failed to send image');
-      }
-    } catch (error) {
-      console.error('Error sending image:', error);
-    }
-  };
-
   const sendImage = async (base64Image) => {
     try {
       const response = await fetch('http://172.31.164.78:6699/search', {
@@ -99,17 +73,6 @@ export default function VeiwPort({ setData }) {
     }
   };
 
-  const homePage = async () => {
-    // Navigate to the home page
-    <View style={{
-      justifyContent: 'center',
-      flexDirection: 'row'
-    }}>
-      <Text>Sustainability Score</Text>
-
-    </View>
-  };
-
   if (hasCameraPermission === false) {
     return <Text>No access to camera</Text>;
   }
@@ -132,7 +95,7 @@ export default function VeiwPort({ setData }) {
         >
           <Button
             icon='circle'
-            onPress={search}
+            onPress={takePicture}
             size={100}
           ></Button>
         </View>

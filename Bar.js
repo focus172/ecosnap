@@ -31,21 +31,13 @@ export default function Bar({ setData, setSearch }) {
                 onPress={goSearch}
                 backgroundColor={'white'}
                 style={{
-                    marginLeft: 10,
+                    marginRight: 50,
                 }}
             ></Icon.Button>
             <Icon.Button
                 name='camera'
                 color={'black'}
                 onPress={goHome}
-                backgroundColor={'white'}
-                style={{
-                    marginLeft: 50,
-                }}
-            ></Icon.Button>
-            <Icon.Button
-                name='globe'
-                color={'black'}
                 backgroundColor={'white'}
                 style={{
                     marginLeft: 50,

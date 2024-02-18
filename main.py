@@ -57,7 +57,7 @@ def find(names: List[str]) -> Response:
                 # print (f"{guess} matched {company} at {accuracy_percentage}")
 
     if matchs == []:
-        return error("Could not find any info on companys:" + " ".join(names))
+        return error("no data on company " + " ".join(names))
 
     ok: List[Mapping] = []
     for match in matchs:

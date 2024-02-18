@@ -23,7 +23,7 @@ export default function App() {
 
   } else if (search != null) {
     return <View style={styles.container}>
-      <SearchBar></SearchBar>
+      <SearchBar search={search} setSearch={setSearch} setData={setData}></SearchBar>
       <Bar setData={setData} setSearch={setSearch}></Bar>
     </View>
 

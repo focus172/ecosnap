@@ -18,7 +18,7 @@ export default function Explain({ data }) {
         return (
             <View style={styles.container}>
                 <View>
-                    <Text style={styles.camera}>Error has occcered: {err}</Text>
+                    <Text style={styles.header}>Error: {err}</Text>
                 </View>
             </View>
         );
@@ -35,7 +35,8 @@ export default function Explain({ data }) {
 
     return (
         <View style={styles.container}>
-            {/*<Text style={styles.camera}>Comapany IS {name}</Text>*/}
+            <Text style={styles.header}>{name} Products</Text>
+            <Text style={styles.score}>{score}</Text>
             <Description score={score}></Description>
         </View>
     );
@@ -49,12 +50,13 @@ const styles = StyleSheet.create({
         width: "100%",
         height: "100%",
     },
-    camera: {
-        flex: 1,
-        padding: 40,
-        alignItems: 'center',
-        paddingEnd: 50,
-        // width: 100,
-        // borderRadius: 20,
+    header: {
+        fontSize: 30,
+        fontWeight: 'bold',
+    },
+    score: {
+        fontSize: 180,
+        fontWeight: 'bold',
+        color: 'red',
     },
 });
