@@ -1,9 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect, useRef} from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
-import {Camera, CameraType} from 'expo-camera';
+import { Camera } from 'expo-camera';
 import * as MediaLibrary from 'expo-media-library';
+import * as FileSystem from 'expo-file-system';
 import Button from './button';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default function App() {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
@@ -21,59 +23,127 @@ export default function App() {
   }, []);
 
   const takePicture = async () => {
-    if(cameraRef) {
-      try{
+    if (cameraRef) {
+      try {
         const data = await cameraRef.current.takePictureAsync();
         console.log(data);
         setImage(data.uri);
-      } catch(e){
+        const base64Image = await imageToBase64(data.uri);
+        await sendImage(base64Image); // Sending the base64 image data as a POST request
+      } catch (e) {
         console.log(e);
       }
     }
-  }
+  };
 
-const saveImage = async () => {
-  if(image){
+  const imageToBase64 = async (uri) => {
     try {
-      await MediaLibrary.createAssetAsync(image);
-      alert('Saved!');
-      setImage(null);
-    } catch(e){
-      console.log(e)
+      const file = await FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      return file;
+    } catch (error) {
+      console.error('Error reading file:', error);
+      return null;
     }
-  }
-}
-  if(hasCameraPermission === false) {
-    return <Text>No access to camera</Text>
+  };
+
+  const sendImage = async (base64Image) => {
+    try {
+      const response = await fetch('172.31.164.78:6699/get/Nike', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: { image: base64Image },
+      });
+      if (response.ok) {
+        console.log('Image sent successfully');
+      } else {
+        console.error('Failed to send image');
+      }
+    } catch (error) {
+      console.error('Error sending image:', error);
+    }
+  };
+
+  const homePage = async () => {
+    // Navigate to the home page
+    <View style={{
+      justifyContent: 'center',
+      flexDirection: 'row'
+    }}>
+      <Text>Sustainability Score</Text>
+
+    </View>
+  };
+
+  if (hasCameraPermission === false) {
+    return <Text>No access to camera</Text>;
   }
   return (
     <View style={styles.container}>
-      {!image ?
       <Camera
-        style = {styles.camera}
+        style={styles.camera}
         type={type}
-        FlashMode={flash}
+        flashMode={flash}
         ref={cameraRef}
+      >
+        <View
+          style={{
+            width: '100%',
+            height: 50,
+            justifyContent: 'center',
+            position: 'absolute',
+            bottom: 0,
+          }}
         >
-          <Text>hello</Text> 
-        </Camera>
-        :
-        <Image source={{uri: image}} style={styles.camera}/>
-      }
-        <View>
-          {image ?
-          <View style={{
+          <Button
+            icon='circle'
+            onPress={takePicture}
+            style={{
+              width: '100%',
+              height: '100%',
+              size: 50,
+            }}
+          ></Button>
+        </View>
+      </Camera>
+      <View>
+        <View
+          style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
-            paddingHorizontal: 50
-          }}>
-            <Button title={"Re-Take"} icon="retweet" onPress={() => setImage(null)}/>
-            <Button title={"Save"} icon="check" onPress={saveImage}/>
-          </View>
-          :
-            <Button title={'Take a Picture'} icon='camera' onPress={takePicture} />
-          }
+            paddingHorizontal: 150,
+          }}
+        >
+          <Icon.Button
+            name='search'
+            color={'black'}
+            backgroundColor={'white'}
+            onPress={homePage}
+            style={{
+              marginLeft: 10,
+            }}
+          ></Icon.Button>
+          <Icon.Button
+            name='camera'
+            color={'black'}
+            backgroundColor={'white'}
+            style={{
+              marginLeft: 50,
+            }}
+          ></Icon.Button>
+          <Icon.Button
+            name='globe'
+            color={'black'}
+            backgroundColor={'white'}
+            style={{
+              marginLeft: 50,
+            }}
+          ></Icon.Button>
         </View>
+      </View>
     </View>
   );
 }
@@ -83,11 +153,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
-    paddingBottom: 50
+    paddingBottom: 50,
   },
   camera: {
     flex: 1,
     width: 500,
     borderRadius: 20,
-  }
+  },
 });

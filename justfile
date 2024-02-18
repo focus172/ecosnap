@@ -5,7 +5,7 @@ run:
   GOOGLE_APPLICATION_CREDENTIALS=google-cloud-vision-key.json python -m flask --app main run
 
 get name:
-  curl http://localhost:5000/get/{{name}}
+  curl http://172.31.164.78:6699/get/{{name}}
   # --header "Content-Type: application/json" \
   # --request POST \
   # --data @.tmp.file
@@ -15,7 +15,7 @@ post path:
   base64 -w 0 "{{path}}" >> .tmp.file
   echo '"}' >> .tmp.file
 
-  curl http://localhost:5000/search \
+  curl http://172.31.164.78:6699/search \
     --header "Content-Type: application/json" \
     --request POST \
     --data @.tmp.file

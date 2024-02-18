@@ -1,3 +1,5 @@
 __pycache__
 google-cloud-vision-key.json
 test
+/.expo
+/node_modules
