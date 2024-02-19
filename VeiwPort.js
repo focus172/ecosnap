@@ -7,13 +7,15 @@ import * as FileSystem from 'expo-file-system';
 import Button from './Button';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Bar from './Bar';
+import Loading from './Loading';
 
-export default function VeiwPort({ setData, setLoading}) {
+export default function VeiwPort({ setData, setLoading, loading }) {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [image, setImage] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
   const [flash, setFlash] = useState(Camera.Constants.FlashMode.off);
   const cameraRef = useRef(null);
+
 
   useEffect(() => {
     (async () => {
@@ -25,8 +27,8 @@ export default function VeiwPort({ setData, setLoading}) {
 
   const takePicture = async () => {
     if (cameraRef) {
-      setLoading(loading => 'loading...')
       try {
+        setLoading(loading => 'loading...')
         const data = await cameraRef.current.takePictureAsync();
         console.log(data);
         setImage(data.uri);
@@ -60,11 +62,11 @@ export default function VeiwPort({ setData, setLoading}) {
         body: JSON.stringify({ image: base64Image }),
       });
 
+      setLoading(loading => null)
       if (response.ok) {
         console.log('Image sent successfully');
         const json = await response.json()
         setData(data => json)
-        setLoading(loading => null)
         // console.log(json);
       } else {
         console.error('Failed to send image');
@@ -73,6 +75,7 @@ export default function VeiwPort({ setData, setLoading}) {
       console.error('Error sending image:', error);
     }
   };
+
 
   if (hasCameraPermission === false) {
     return <Text>No access to camera</Text>;
@@ -94,6 +97,7 @@ export default function VeiwPort({ setData, setLoading}) {
             bottom: 0,
           }}
         >
+          <Loading loading={loading}></Loading>
           <Button
             icon='circle'
             onPress={takePicture}

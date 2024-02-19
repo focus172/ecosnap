@@ -7,11 +7,8 @@ pip install -r requirements.txt
 ```
 
 ## Running
-If you have just installed then run
+Requires a valid API key located at `./google-cloud-vision-key.json`
 ```bash
 just run
 ```
-Else you can run directly
-```bash
-python -m flask --app main run
 ```

@@ -1,13 +1,13 @@
-__pycache__
-google-cloud-vision-key.json
-test
+# Big Files
+/__pycache__
+/test
 /.expo
 /node_modules
+/package-lock.json
+/yarn.lock
 
+# Secret Files
+/google-cloud-vision-key.json
 
-# Added by cargo
-
-/target
-Cargo.lock
-Cargo.toml
-src
+# Unused Files
+/v2
