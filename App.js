@@ -4,12 +4,13 @@ import { StyleSheet, Text, View, Image } from 'react-native';
 import { Camera } from 'expo-camera';
 import * as MediaLibrary from 'expo-media-library';
 import * as FileSystem from 'expo-file-system';
-import Button from './Button';
-import VeiwPort from './VeiwPort';
-import Explain from './Explain';
-import Bar from './Bar';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import SearchBar from './SearchBar';
+
+import Button from './components/Button';
+import VeiwPort from './components/VeiwPort';
+import Explain from './components/Explain';
+import Bar from './components//Bar';
+import SearchBar from './components/SearchBar';
 
 export default function App() {
   const [data, setData] = useState(null);

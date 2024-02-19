@@ -8,6 +8,4 @@
 
 # Secret Files
 /google-cloud-vision-key.json
-
-# Unused Files
-/v2
+v2/target
