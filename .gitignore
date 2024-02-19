@@ -9,3 +9,4 @@
 # Secret Files
 /google-cloud-vision-key.json
 v2/target
+v2/access-token.priv

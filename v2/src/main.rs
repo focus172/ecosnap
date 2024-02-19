@@ -1,20 +1,23 @@
-#![feature(lazy_cell)]
+#![feature(lazy_cell, inline_const)]
 
-use actix_web::{error, get, post, web, App, HttpResponse, HttpServer, Responder};
-use futures::StreamExt;
+use crate::response::{QueryResponse, Thing};
+use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-use crate::response::{QueryResponse, Thing};
+pub const API_VERSION: &str = env!("CARGO_PKG_VERSION");
+const GOOGLE_PROJECT_ID: &str = "hidden-sunlight-414619";
 
-pub const API_VERSION: &str = "0.2.0";
-const MAX_SIZE: usize = 262_144; // max payload size is 256k
+// let key - "$(gcloud auth print-access-token)"),
 
+mod google;
 mod response;
+mod search;
 
 #[derive(Debug)]
 pub struct State {
-    data: HashMap<String, HashMap<String, usize>>,
+    pub data: HashMap<String, HashMap<String, usize>>,
+    pub key: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -27,34 +30,6 @@ impl From<String> for Query {
     fn from(value: String) -> Self {
         Query::Name(value)
     }
-}
-
-#[derive(Serialize, Deserialize)]
-struct Request {
-    api_key: String,
-    version: String,
-    /// The query
-    query: Query,
-    /// The data section, contains base 64 image when the query is an image
-    data: String,
-}
-
-#[post("/v2/search")]
-async fn search(mut payload: web::Payload) -> Result<HttpResponse, actix_web::Error> {
-    // payload is a stream of Bytes objects
-    let mut body = web::BytesMut::new();
-    while let Some(chunk) = payload.next().await {
-        let chunk = chunk?;
-        // limit max size of in-memory payload
-        if (body.len() + chunk.len()) > MAX_SIZE {
-            return Err(error::ErrorBadRequest("overflow"));
-        }
-        body.extend_from_slice(&chunk);
-    }
-
-    // body is loaded, now we can deserialize serde-json
-    let obj = json::from_slice::<Request>(&body)?;
-    Ok(HttpResponse::Ok().json(obj)) // <- send response
 }
 
 #[derive(Deserialize)]
@@ -98,10 +73,11 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(|| {
         let data = json::from_str(include_str!("../../data.json")).unwrap();
+        let key = include_str!("../access-token.priv").trim().to_owned();
 
         App::new()
-            .app_data(web::Data::new(State { data }))
-            .service(search)
+            .app_data(web::Data::new(State { data, key }))
+            .service(search::search)
             .service(get)
             .service(find)
     })

@@ -22,7 +22,7 @@ find name:
 
 # Makes a post request to the server
 post path:
-  printf '{"image":"' > .tmp.file
+  printf '{"data":"' > .tmp.file
   base64 -w 0 "{{path}}" >> .tmp.file
   echo '"}' >> .tmp.file
 
