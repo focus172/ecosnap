@@ -1,0 +1,15 @@
+{
+    "manifest_version": 3,
+    "name": "EcoSnap",
+    "version": "1.0.0",
+    "description": "Learn about corportate practices with product images",
+    "author": "Nolan Fallin",
+    "icons": {
+      "128": "images/EcoSnapIcon.png"
+    },
+    "action": {
+      "default_popup": "popup.html",
+      "default_icon:": "images/EcoSnapIcon.png", 
+      "default_title": "EcoSnap"
+    }
+  }
