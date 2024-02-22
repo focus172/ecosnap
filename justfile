@@ -1,38 +1,29 @@
 # host := "172.31.164.78:6699"
 host := "localhost:6699"
 
+alias api := api-v1
+
 default:
-  @just -l
+    @just -l
 
 # Runs the V1 server
-run:
-  GOOGLE_APPLICATION_CREDENTIALS=google-cloud-vision-key.json python main.py
+api-v1:
+    cd api/v1 && GOOGLE_APPLICATION_CREDENTIALS=google-cloud-vision-key.json python main.py
+
+# Runs the V2 server
+api-v2:
+    cd api/v2 && cargo run
 
 # Runs the app for local testing
 app:
-  npx expo
+    cd app && npx expo
 
-# Makes a GET request to the server to look up name
-get name:
-  curl http://{{host}}/v2/get/{{name}}
+build:
+    just build-ext
+    just build-api-v2
 
-# Makes a GET request to the server to match name
-find name:
-  curl http://{{host}}/v2/find/{{name}}
+build-ext:
+    cp ./assets/icon.png ./ext/chrome/images
 
-# Makes a post request to the server
-post path:
-  printf '{"data":"' > .tmp.file
-  base64 -w 0 "{{path}}" >> .tmp.file
-  echo '"}' >> .tmp.file
-
-  curl http://{{host}}/v2/search \
-    --header "Content-Type: application/json" \
-    --request POST \
-    --data @.tmp.file
-
-  rm .tmp.file
-
-# Deploy the could to google cloud
-deploy:
-  gcloud run deploy --source .
+build-api-v2:
+    cd api/v2 && cargo build

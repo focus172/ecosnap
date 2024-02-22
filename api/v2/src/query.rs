@@ -1,18 +1,34 @@
-use std::collections::HashMap;
-
-use actix_web::HttpResponse;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use actix_web::HttpResponse;
 
-use crate::Query;
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum Query {
+    Names(Vec<String>),
+    Image,
+}
+
+impl From<String> for Query {
+    fn from(value: String) -> Self {
+        Query::Names(vec![value])
+    }
+}
+
+impl From<Vec<String>> for Query {
+    fn from(value: Vec<String>) -> Self {
+        Query::Names(value)
+    }
+}
+
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Thing {
+pub struct Entry {
     name: String,
     matchs: f64,
     scores: HashMap<String, usize>,
 }
 
-impl Thing {
+impl Entry {
     pub fn new(name: String, matchs: f64, scores: HashMap<String, usize>) -> Self {
         Self {
             name,
@@ -24,25 +40,28 @@ impl Thing {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct QueryResponse {
-    data: Result<Vec<Thing>, String>,
+    data: Result<Vec<Entry>, String>,
     query: Query,
 }
 
 impl QueryResponse {
-    pub fn query(query: impl Into<Query>) -> Self {
+    pub fn new(query: impl Into<Query>) -> Self {
         Self {
             data: Ok(Vec::default()),
             query: query.into(),
         }
     }
 
-    pub fn error(mut self, msg: String) -> Self {
-        self.data = Err(msg);
+    pub fn error(mut self, msg: impl Into<String>) -> Self {
+        self.data = Err(msg.into());
         self
     }
 
-    pub fn push(&mut self, value: Thing) {
-        let Ok(r) = &mut self.data else { return };
+    pub fn push(&mut self, value: Entry) {
+        let Ok(r) = &mut self.data else {
+            log::warn!("Attempted to push data to `Err` response.");
+            return;
+        };
         r.push(value)
     }
 }

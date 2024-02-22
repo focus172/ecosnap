@@ -1,0 +1,23 @@
+default:
+    @just -l
+
+# Makes a GET request to the server to look up name
+get name:
+    curl http://{{host}}/v2/get/{{name}}
+
+# Makes a GET request to the server to match name
+find name:
+    curl http://{{host}}/v2/find/{{name}}
+
+# Makes a post request to the server
+post path:
+    @printf '{"data":"' > req.json
+    @base64 -w 0 "{{path}}" >> req.json
+    @echo '"}' >> req.json
+
+    @curl http://{{host}}/v2/search \
+    --header "Content-Type: application/json" \
+    --request POST \
+    --data @req.json
+
+    @rm req.json

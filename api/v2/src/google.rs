@@ -8,16 +8,20 @@ use crate::GOOGLE_PROJECT_ID;
 
 #[derive(Debug)]
 pub enum ApiError {
-    SendError,
-    ResponseError,
-    ParseError(json::Value),
+    Send,
+    Response,
+    Parse(json::Value),
 }
 impl fmt::Display for ApiError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            ApiError::SendError => f.write_str("failed to send request."),
-            ApiError::ResponseError => f.write_str("failed to understand response"),
-            ApiError::ParseError(v) => write!(f, "failed to serialize value: {}", v),
+            ApiError::Send => f.write_str("failed to send request."),
+            ApiError::Response => f.write_str("failed to understand response"),
+            ApiError::Parse(v) => write!(
+                f,
+                "failed to serialize value: \n {}",
+                json::to_string_pretty(v).unwrap()
+            ),
         }
     }
 }
@@ -45,12 +49,12 @@ pub async fn call(key: &str, data: String) -> resu::Result<GoogleApiResponse, Ap
         }))
         .send()
         .await
-        .change_context(ApiError::SendError)?
+        .change_context(ApiError::Send)?
         .json::<json::Value>()
         .await
-        .change_context(ApiError::ResponseError)?;
+        .change_context(ApiError::Response)?;
 
-    json::from_value(value.clone()).change_context(ApiError::ParseError(value))
+    json::from_value(value.clone()).change_context(ApiError::Parse(value))
 }
 
 /// Response from google API
@@ -72,16 +76,18 @@ impl GoogleApiResponse {
     }
 }
 
+#[allow(unused)]
 #[derive(Debug, Default, Deserialize)]
 struct Annotation {
     mid: String,
     description: String,
     score: f32,
     #[serde(rename(serialize = "boundingPoly"))]
-    poly: Vec<Vert>,
+    poly: [Vert; 4],
 }
 
 /// A Point on an image, Desrializes to 0 when it is missing
+#[allow(unused)]
 #[derive(Debug, Default, Deserialize)]
 struct Vert {
     #[serde(default)]

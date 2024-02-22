@@ -3,7 +3,11 @@ use actix_web::{error, post, web, Error, HttpResponse};
 use base64::Engine;
 use resu::{Context, ResultExt};
 use serde::{Deserialize, Serialize};
-use std::{fmt, io::Cursor};
+use std::{
+    fmt,
+    io,
+};
+use tokio::process::Command;
 
 const MAX_SIZE: usize = const { 256 * 1024 * 1024 }; // 256M
 
@@ -31,10 +35,11 @@ pub async fn search(payload: web::Payload, state: web::Data<State>) -> Result<Ht
 
     // log::info!("got thing. ready to sending req");
 
-    let resp = match crate::google::call(&state.key, data).await {
+    let key = get_key().await;
+    let resp = match crate::google::call(key.trim_end(), data).await {
         Ok(a) => a,
         Err(b) => {
-            return Err(error::ErrorBadRequest(format!("e: {}", b)));
+            return Err(error::ErrorBadRequest(b));
         }
     };
     log::info!("resp: {:?}", resp);
@@ -67,13 +72,27 @@ fn preprocess(data: String) -> resu::Result<String, ImageError> {
         .decode(data)
         .change_context(ImageError::DecodeError)?;
 
-    let image = image::io::Reader::new(Cursor::new(bytes))
-        .with_guessed_format()
-        .expect("cursors nevery fail")
-        .decode()
-        .change_context(ImageError::ParseError)?;
-
+    let mut image = image::io::Reader::new(io::Cursor::new(bytes));
+    image.set_format(image::ImageFormat::Png);
+    let image = image.decode().expect("cursors nevery fail");
     let image = image.resize(320, 320, image::imageops::FilterType::Nearest);
 
-    Ok(base64::prelude::BASE64_STANDARD.encode(image.as_bytes()))
+    let mut buf = Vec::<u8>::new();
+    {
+        let mut w = io::BufWriter::new(io::Cursor::new(&mut buf));
+        image.write_to(&mut w, image::ImageFormat::Png).unwrap();
+    }
+
+    Ok(base64::prelude::BASE64_STANDARD.encode(buf))
+}
+
+async fn get_key() -> String {
+    let data = Command::new("gcloud")
+        .arg("auth")
+        .arg("print-access-token")
+        .output()
+        .await
+        .unwrap()
+        .stdout;
+    String::from_utf8(data).unwrap()
 }

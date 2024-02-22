@@ -1,12 +1,10 @@
 # Big Files
-/__pycache__
 /test
-/.expo
-/node_modules
-/package-lock.json
-/yarn.lock
+/app/yarn.lock
+/api/v1/__pycache__
+/api/v2/target
+/app/package-lock.json
+/app/node_modules
 
 # Secret Files
-/google-cloud-vision-key.json
-v2/target
-v2/access-token.priv
+api/v1/google-cloud-vision-key.json
