@@ -1,5 +1,3 @@
-# host := "172.31.164.78:6699"
-host := "localhost:6699"
 
 alias api := api-v1
 

@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fmt};
+use std::fmt;
 
 use json::json;
 use resu::{Context, ResultExt};
@@ -63,27 +63,48 @@ pub async fn call(key: &str, data: String) -> resu::Result<GoogleApiResponse, Ap
 /// https://cloud.google.com/vision/docs/detecting-logos#vision_logo_detection-drest
 #[derive(Debug, Default, Deserialize)]
 pub struct GoogleApiResponse {
-    responses: Vec<HashMap<String, Annotation>>,
+    responses: Vec<Response>,
+}
+
+#[derive(Debug, Deserialize)]
+pub enum Response {
+    #[serde(rename = "logoAnnotations")]
+    LogoAnnotations(Vec<Annotation>),
+    #[serde(rename = "error")]
+    Error(json::Value),
 }
 
 impl GoogleApiResponse {
     pub fn logos(&self) -> Vec<String> {
         self.responses
             .iter()
-            .flat_map(|m| m.get("logoAnnotations"))
+            .filter_map(|resp| match resp {
+                Response::LogoAnnotations(a) => Some(a),
+                Response::Error(e) => {
+                    log::error!("{:?}", e);
+                    None
+                }
+            })
+            .flatten()
             .map(|annotation| annotation.description.clone())
             .collect()
     }
 }
 
-#[allow(unused)]
+#[allow(unused)] // all feilds are in the struct
 #[derive(Debug, Default, Deserialize)]
-struct Annotation {
+pub struct Annotation {
     mid: String,
     description: String,
     score: f32,
-    #[serde(rename(serialize = "boundingPoly"))]
-    poly: [Vert; 4],
+    #[serde(rename = "boundingPoly")]
+    bound: Poly,
+}
+
+#[allow(unused)] // all feilds are in the struct
+#[derive(Debug, Default, Deserialize)]
+pub struct Poly {
+    vertices: [Vert; 4],
 }
 
 /// A Point on an image, Desrializes to 0 when it is missing

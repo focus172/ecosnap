@@ -2,7 +2,7 @@
 
 // Best effort bais: when true is always true, when false may be true
 
-use crate::query::{Entry, Query};
+use crate::query::Entry;
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
 use query::QueryResponse;
 use std::collections::HashMap;
@@ -24,21 +24,15 @@ pub struct State {
 
 /// Search based on exact matches
 #[get("/v2/get/{name}")]
-async fn get(path: web::Path<Query>, state: web::Data<State>) -> impl Responder {
-    let query = path.as_ref();
+async fn get(path: web::Path<String>, state: web::Data<State>) -> impl Responder {
+    let name = path.as_ref().clone();
 
     log::info!(
         target: "/v2/get",
-        "Request: {:?}", query
+        "Request: {:?}", name
     );
 
-    let Query::Names(names) = query else {
-        return HttpResponse::from(
-            QueryResponse::new(query.clone()).error("Error: query should be a Name"),
-        );
-    };
-
-    let response = make_matches(state.as_ref(), names).await;
+    let response = make_matches(state.as_ref(), &[name]).await;
 
     HttpResponse::from(response)
 }
@@ -51,26 +45,19 @@ async fn make_matches(state: &State, names: &[String]) -> QueryResponse {
             response.push(Entry::new(name.clone(), 1.0, value.clone()))
         }
     }
-    QueryResponse::new(String::new())
+    response
 }
 
 /// Search based using fuzzy finder
 #[get("/v2/find/{name}")]
-async fn find(path: web::Path<Query>, state: web::Data<State>) -> impl Responder {
-    let query = path.as_ref();
+async fn find(path: web::Path<String>, state: web::Data<State>) -> impl Responder {
+    let name = path.as_ref();
 
-    let Query::Names(names) = query else {
-        let response = QueryResponse::new(query.clone()).error(String::from("yoy fuck"));
-        return HttpResponse::from(response);
-    };
-
-    let mut response = QueryResponse::new(names.clone());
-    for name in names {
-        for (entry, resp) in state.data.iter() {
-            let sim = strsim::jaro(&name, entry.to_lowercase().as_str());
-            if sim > 0.80 {
-                response.push(Entry::new(entry.clone(), sim, resp.clone()))
-            }
+    let mut response = QueryResponse::new(name.clone());
+    for (entry, resp) in state.data.iter() {
+        let sim = strsim::jaro(name.to_lowercase().as_str(), entry.to_lowercase().as_str());
+        if sim > 0.80 {
+            response.push(Entry::new(entry.clone(), sim, resp.clone()))
         }
     }
     HttpResponse::from(response)
@@ -80,7 +67,8 @@ async fn find(path: web::Path<Query>, state: web::Data<State>) -> impl Responder
 async fn main() -> std::io::Result<()> {
     #[allow(unused_unsafe)] // will be needed in future versions
     unsafe {
-        std::env::set_var("RUST_LOG", "actix_web=debug,actix_server=info,ecosnap")
+        // std::env::set_var("RUST_LOG", "actix_web=debug,actix_server=info,ecosnap")
+        std::env::set_var("RUST_LOG", "info")
     };
 
     logger::init();
@@ -98,4 +86,3 @@ async fn main() -> std::io::Result<()> {
     .run()
     .await
 }
-

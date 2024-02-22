@@ -1,25 +1,30 @@
+use actix_web::HttpResponse;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use actix_web::HttpResponse;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum Query {
-    Names(Vec<String>),
-    Image,
+pub struct Query {
+    names: Vec<String>,
+    image: bool,
 }
 
 impl From<String> for Query {
     fn from(value: String) -> Self {
-        Query::Names(vec![value])
+        Self {
+            names: vec![value],
+            image: false,
+        }
     }
 }
 
 impl From<Vec<String>> for Query {
     fn from(value: Vec<String>) -> Self {
-        Query::Names(value)
+        Self {
+            names: value,
+            image: false,
+        }
     }
 }
-
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Entry {

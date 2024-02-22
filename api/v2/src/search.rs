@@ -3,10 +3,7 @@ use actix_web::{error, post, web, Error, HttpResponse};
 use base64::Engine;
 use resu::{Context, ResultExt};
 use serde::{Deserialize, Serialize};
-use std::{
-    fmt,
-    io,
-};
+use std::{fmt, io};
 use tokio::process::Command;
 
 const MAX_SIZE: usize = const { 256 * 1024 * 1024 }; // 256M
@@ -38,15 +35,17 @@ pub async fn search(payload: web::Payload, state: web::Data<State>) -> Result<Ht
     let key = get_key().await;
     let resp = match crate::google::call(key.trim_end(), data).await {
         Ok(a) => a,
-        Err(b) => {
-            return Err(error::ErrorBadRequest(b));
+        Err(e) => {
+            log::info!("{:?}", e);
+            return Err(error::ErrorBadRequest(e));
         }
     };
     log::info!("resp: {:?}", resp);
 
     let logos = resp.logos();
+    let response = crate::make_matches(&state, &logos).await;
 
-    Ok(HttpResponse::Ok().json(logos))
+    Ok(HttpResponse::from(response))
 }
 
 #[derive(Debug)]
@@ -74,7 +73,10 @@ fn preprocess(data: String) -> resu::Result<String, ImageError> {
 
     let mut image = image::io::Reader::new(io::Cursor::new(bytes));
     image.set_format(image::ImageFormat::Png);
-    let image = image.decode().expect("cursors nevery fail");
+    let image = image
+        .decode()
+        .change_context(ImageError::ParseError)
+        .attach_printable("file should be a png")?;
     let image = image.resize(320, 320, image::imageops::FilterType::Nearest);
 
     let mut buf = Vec::<u8>::new();
