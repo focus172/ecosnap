@@ -86,7 +86,7 @@ async fn main() -> std::io::Result<()> {
     logger::init();
 
     HttpServer::new(|| {
-        let data = json::from_str(include_str!("../../data.json")).unwrap();
+        let data = json::from_str(include_str!("../../../data.json")).unwrap();
 
         App::new()
             .app_data(web::Data::new(State { data }))

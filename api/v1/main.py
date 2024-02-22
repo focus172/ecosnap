@@ -10,7 +10,7 @@ version = "0.1.0"
 
 # Init
 app = Flask(__name__)
-with open("data.json", "r") as file:
+with open("../../data.json", "r") as file:
     data = json.load(file)
 client = vision.ImageAnnotatorClient()
 
