@@ -61,44 +61,61 @@ pub async fn call(key: &str, data: String) -> resu::Result<GoogleApiResponse, Ap
 ///
 /// The example can be forund here
 /// https://cloud.google.com/vision/docs/detecting-logos#vision_logo_detection-drest
-#[derive(Debug, Default, Deserialize)]
-pub struct GoogleApiResponse {
-    responses: Vec<Response>,
+#[derive(Debug, Deserialize)]
+#[serde(rename_all(deserialize = "camelCase"))]
+pub enum GoogleApiResponse {
+    Responses(Vec<Response>),
+    Error(GoogleError),
+}
+
+#[allow(unused)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all(deserialize = "camelCase"))]
+pub struct GoogleError {
+    code: usize,
+    details: json::Value,
+    message: String,
+    status: String,
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all(deserialize = "camelCase"))]
 pub enum Response {
-    #[serde(rename = "logoAnnotations")]
     LogoAnnotations(Vec<Annotation>),
-    #[serde(rename = "error")]
     Error(json::Value),
 }
 
 impl GoogleApiResponse {
     pub fn logos(&self) -> Vec<String> {
-        self.responses
-            .iter()
-            .filter_map(|resp| match resp {
-                Response::LogoAnnotations(a) => Some(a),
-                Response::Error(e) => {
-                    log::error!("{:?}", e);
-                    None
-                }
-            })
-            .flatten()
-            .map(|annotation| annotation.description.clone())
-            .collect()
+        match self {
+            GoogleApiResponse::Responses(r) => r
+                .iter()
+                .filter_map(|resp| match resp {
+                    Response::LogoAnnotations(a) => Some(a),
+                    Response::Error(e) => {
+                        log::error!("{:?}", e);
+                        None
+                    }
+                })
+                .flatten()
+                .map(|annotation| annotation.description.clone())
+                .collect(),
+            GoogleApiResponse::Error(e) => {
+                log::warn!("{e:#?}");
+                vec![]
+            }
+        }
     }
 }
 
 #[allow(unused)] // all feilds are in the struct
 #[derive(Debug, Default, Deserialize)]
+#[serde(rename_all(deserialize = "camelCase"))]
 pub struct Annotation {
     mid: String,
     description: String,
     score: f32,
-    #[serde(rename = "boundingPoly")]
-    bound: Poly,
+    bounding_poly: Poly,
 }
 
 #[allow(unused)] // all feilds are in the struct

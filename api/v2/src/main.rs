@@ -25,14 +25,14 @@ pub struct State {
 /// Search based on exact matches
 #[get("/v2/get/{name}")]
 async fn get(path: web::Path<String>, state: web::Data<State>) -> impl Responder {
-    let name = path.as_ref().clone();
+    let name = path.as_ref();
 
     log::info!(
         target: "/v2/get",
         "Request: {:?}", name
     );
 
-    let response = make_matches(state.as_ref(), &[name]).await;
+    let response = make_matches(state.as_ref(), &[name.clone()]).await;
 
     HttpResponse::from(response)
 }
@@ -45,7 +45,7 @@ async fn make_matches(state: &State, names: &[String]) -> QueryResponse {
             response.push(Entry::new(name.clone(), 1.0, value.clone()))
         }
     }
-    response
+    QueryResponse::new(String::new())
 }
 
 /// Search based using fuzzy finder
@@ -54,12 +54,14 @@ async fn find(path: web::Path<String>, state: web::Data<State>) -> impl Responde
     let name = path.as_ref();
 
     let mut response = QueryResponse::new(name.clone());
+
     for (entry, resp) in state.data.iter() {
-        let sim = strsim::jaro(name.to_lowercase().as_str(), entry.to_lowercase().as_str());
+        let sim = strsim::jaro(&name, entry.to_lowercase().as_str());
         if sim > 0.80 {
             response.push(Entry::new(entry.clone(), sim, resp.clone()))
         }
     }
+
     HttpResponse::from(response)
 }
 
@@ -67,8 +69,7 @@ async fn find(path: web::Path<String>, state: web::Data<State>) -> impl Responde
 async fn main() -> std::io::Result<()> {
     #[allow(unused_unsafe)] // will be needed in future versions
     unsafe {
-        // std::env::set_var("RUST_LOG", "actix_web=debug,actix_server=info,ecosnap")
-        std::env::set_var("RUST_LOG", "info")
+        std::env::set_var("RUST_LOG", "actix_web=debug,actix_server=info,ecosnap")
     };
 
     logger::init();

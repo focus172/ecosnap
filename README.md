@@ -11,7 +11,7 @@ A working rust tool chain.
 
 ## Running
 ### V1
-Requires a valid API key located at `.api/v1/google-cloud-vision-key.json`
+Requires a valid API key located at `./api/v1/google-cloud-vision-key.json`
 ```bash
 just api
 ```

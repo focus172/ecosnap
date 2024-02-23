@@ -66,8 +66,7 @@ export default function VeiwPort({ setData, setLoading, loading }) {
       if (response.ok) {
         console.log('Image sent successfully');
         const json = await response.json()
-        setData(data => json)
-        // console.log(json);
+        setData(_data => json)
       } else {
         console.error('Failed to send image');
       }
